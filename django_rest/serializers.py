@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django_rest.models import Student,Book,Category
+from django.contrib.auth.models import User
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -29,3 +30,11 @@ class BookSerializer(serializers.ModelSerializer):
    class Meta:
       model=Book
       fields='__all__'
+
+
+class UserSerializer(serializers.ModelSerializer):
+    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Student.objects.all())
+
+    class Meta:
+        model = User
+        fields = ['id', 'username']

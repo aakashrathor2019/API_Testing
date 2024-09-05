@@ -1,5 +1,5 @@
 from .views import *
-from django.urls import path
+from django.urls import path,include
 from rest_framework.urlpatterns import format_suffix_patterns
 
 
@@ -9,6 +9,7 @@ urlpatterns = [
     #CLASS BASED VIEWS URLS
     path('student/<int:id>/',StudentViewSet.as_view(),name='student'),
     path('student/',StudentViewSet.as_view(),name='student'),
+    path('api-auth/', include('rest_framework.urls')),
 
 
     #FUNCTION BASED VIEWS URLS

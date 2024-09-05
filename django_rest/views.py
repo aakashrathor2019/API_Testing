@@ -2,9 +2,14 @@ from django.shortcuts import render
 from .models import Student,Category,Book
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import StudentSerializer,BookSerializer,CategorySerializer
+from .serializers import StudentSerializer,UserSerializer
 from rest_framework.views import APIView
 from rest_framework import status
+from django.contrib.auth.models import User
+from rest_framework import generics
+from rest_framework.permissions import IsAuthenticatedOrReadOnly 
+from .permissions import IsOwnerOrReadOnly
+from rest_framework import viewsets
 
 
 
@@ -72,6 +77,9 @@ from rest_framework import status
                                     #***************Class based API Views*******************
 
 class StudentViewSet(APIView):
+    
+    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+
 
     def get(self ,request ,id=None):
       print('ID VAL:',id)
@@ -133,7 +141,7 @@ class StudentViewSet(APIView):
       
       except:
          return Response({'status':404, 'message':'Id not found'})
-    
+
  
 
    
