@@ -15,7 +15,12 @@ class StudentSerializer(serializers.ModelSerializer):
      if any(char.isdigit()  for char in value):
         raise serializers.ValidationError('Name must contaion characters only')
      
+     if len(value) < 3:
+      print('INSIDE NAME ERROR',len(value))
+      raise serializers.ValidationError('Name contains at least 3 characters')
+     
      return value
+  
   
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -33,8 +38,13 @@ class BookSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    snippets = serializers.PrimaryKeyRelatedField(many=True, queryset=Student.objects.all())
-
+    
     class Meta:
         model = User
-        fields = ['id', 'username']
+        fields = ['username','password']
+
+    def create(self ,validated_data):
+       user= User.objects.create(username=validated_data['username'])
+       user.set_password(validated_data['password'])
+       user.save()
+       return user

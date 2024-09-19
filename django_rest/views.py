@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from .models import Student,Category,Book
+from .models import Student
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import StudentSerializer,UserSerializer
@@ -7,10 +7,13 @@ from rest_framework.views import APIView
 from rest_framework import status
 from django.contrib.auth.models import User
 from rest_framework import generics
-from rest_framework.permissions import IsAuthenticatedOrReadOnly 
+from rest_framework.permissions import IsAuthenticated
 from .permissions import IsOwnerOrReadOnly
 from rest_framework import viewsets
-
+from rest_framework.authtoken.models import Token
+from rest_framework.authentication import TokenAuthentication
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.generics import ListAPIView
 
 
 
@@ -75,10 +78,10 @@ from rest_framework import viewsets
 
 
                                     #***************Class based API Views*******************
-
 class StudentViewSet(APIView):
-    
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+    authentication_classes=[TokenAuthentication]
+    authentication_classes=[JWTAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
     def get(self ,request ,id=None):
@@ -95,8 +98,9 @@ class StudentViewSet(APIView):
       else:
         student_objs=Student.objects.all()
         serializer=StudentSerializer(student_objs ,many=True)
+        print('Current User:',request.user)
         return Response({'status':200 ,'payload':serializer.data,'message':'All data of student'})
-    
+
     def post(self ,request):
         serializer=StudentSerializer(data=request.data)
 
@@ -141,6 +145,20 @@ class StudentViewSet(APIView):
       
       except:
          return Response({'status':404, 'message':'Id not found'})
+      
+class ResgisterUser(APIView):
+   def post(self, request):
+      serializer=UserSerializer(data = request.data)
+
+      if not serializer.is_valid():
+         return Response({'status':403 ,'errors':serializer.errors , 'message':'Something went wrong'})
+      
+      serializer.save()
+
+      user=User.objects.get(username=serializer.data['username'])
+      token_obj=Token.objects.get_or_create(user=user)
+
+      return Response({'status':200 ,'payload':serializer.data ,'token':str(token_obj) ,'message':'your data saved'})
 
  
 
